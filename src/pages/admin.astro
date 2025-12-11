@@ -1,0 +1,306 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import FormattedDate from '../components/FormattedDate.astro';
+import { SITE_TITLE } from '../consts';
+import { getCollection } from 'astro:content';
+
+const posts = (await getCollection('blog')).sort(
+        (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+);
+---
+
+<!doctype html>
+<html lang="en">
+        <head>
+                <BaseHead
+                        title={`${SITE_TITLE} | Content Panel`}
+                        description="Draft NTRCA Explore posts, preview Markdown, and keep a local stash of ideas."
+                />
+                <style>
+                        .layout {
+                                display: grid;
+                                grid-template-columns: 2fr 1fr;
+                                gap: 1.25rem;
+                        }
+                        form {
+                                display: grid;
+                                gap: 0.75rem;
+                        }
+                        label {
+                                display: grid;
+                                gap: 0.35rem;
+                                font-weight: 700;
+                        }
+                        input,
+                        textarea,
+                        select {
+                                padding: 0.75rem;
+                                border-radius: 10px;
+                                border: 1px solid rgba(var(--gray), 20%);
+                                font-family: inherit;
+                        }
+                        textarea {
+                                min-height: 180px;
+                        }
+                        .actions {
+                                display: flex;
+                                gap: 0.5rem;
+                                flex-wrap: wrap;
+                        }
+                        .preview {
+                                background: #0f1729;
+                                color: #f8fafc;
+                                border-radius: 14px;
+                                padding: 1rem;
+                                min-height: 200px;
+                                font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+                                white-space: pre-wrap;
+                                box-shadow: var(--box-shadow);
+                        }
+                        .panel {
+                                display: grid;
+                                gap: 0.75rem;
+                        }
+                        .existing-posts {
+                                border: 1px solid rgba(var(--gray), 12%);
+                                border-radius: 12px;
+                                padding: 1rem;
+                                box-shadow: var(--box-shadow);
+                                background: #fff;
+                        }
+                        .existing-posts ul {
+                                list-style: none;
+                                padding: 0;
+                                margin: 0;
+                                display: grid;
+                                gap: 0.5rem;
+                        }
+                        .existing-posts li {
+                                display: flex;
+                                justify-content: space-between;
+                                gap: 1rem;
+                                padding: 0.5rem 0;
+                                border-bottom: 1px solid rgba(var(--gray), 10%);
+                        }
+                        .existing-posts li:last-child {
+                                border-bottom: none;
+                        }
+                        @media (max-width: 960px) {
+                                .layout {
+                                        grid-template-columns: 1fr;
+                                }
+                        }
+                </style>
+        </head>
+        <body>
+                <Header />
+                <main>
+                        <p class="pill">Content panel</p>
+                        <h1>Create, save, and ship new posts.</h1>
+                        <p class="muted">
+                                Draft in the browser, copy Markdown with ready-made frontmatter, and keep your ideas safe in local storage
+                                until you commit them to <code>src/content/blog</code>.
+                        </p>
+                        <div class="layout">
+                                <section class="panel">
+                                        <form id="post-form">
+                                                <div class="two-column">
+                                                        <label>
+                                                                Title
+                                                                <input required id="title" name="title" placeholder="e.g. How to submit your NTRCA documents" />
+                                                        </label>
+                                                        <label>
+                                                                Slug
+                                                                <input id="slug" name="slug" placeholder="auto-generated" />
+                                                        </label>
+                                                </div>
+                                                <div class="two-column">
+                                                        <label>
+                                                                Description
+                                                                <input
+                                                                        required
+                                                                        id="description"
+                                                                        name="description"
+                                                                        placeholder="One or two sentences that summarize the post"
+                                                                />
+                                                        </label>
+                                                        <label>
+                                                                Category
+                                                                <select id="category" name="category">
+                                                                        <option value="Update">Update</option>
+                                                                        <option value="Exam prep">Exam prep</option>
+                                                                        <option value="Documentation">Documentation</option>
+                                                                        <option value="Interview">Interview</option>
+                                                                </select>
+                                                        </label>
+                                                </div>
+                                                <div class="two-column">
+                                                        <label>
+                                                                Published date
+                                                                <input type="date" id="pubDate" name="pubDate" />
+                                                        </label>
+                                                        <label>
+                                                                Hero image URL
+                                                                <input id="heroImage" name="heroImage" placeholder="/blog-placeholder-1.jpg" />
+                                                        </label>
+                                                </div>
+                                                <label>
+                                                        Body
+                                                        <textarea
+                                                                id="content"
+                                                                name="content"
+                                                                placeholder="Use Markdown or MDX. This content drops below the frontmatter."
+                                                        ></textarea>
+                                                </label>
+                                                <div class="two-column">
+                                                        <label>
+                                                                Tags (comma separated)
+                                                                <input id="tags" name="tags" placeholder="checklist, deadlines" />
+                                                        </label>
+                                                        <label>
+                                                                Updated date (optional)
+                                                                <input type="date" id="updatedDate" name="updatedDate" />
+                                                        </label>
+                                                </div>
+                                                <div class="actions">
+                                                        <button class="btn" type="button" id="save-draft">Save draft</button>
+                                                        <button class="btn secondary" type="button" id="copy">Copy Markdown</button>
+                                                        <button class="btn secondary" type="button" id="clear">Clear form</button>
+                                                </div>
+                                        </form>
+                                        <div>
+                                                <p class="pill">Preview</p>
+                                                <div class="preview" id="preview"></div>
+                                        </div>
+                                </section>
+                                <aside class="existing-posts">
+                                        <h3>Currently published</h3>
+                                        <p class="muted">Use these slugs and dates as a reference while drafting.</p>
+                                        <ul>
+                                                {posts.map((post) => (
+                                                        <li>
+                                                                <span>{post.data.title}</span>
+                                                                <span class="muted">
+                                                                        <FormattedDate date={post.data.pubDate} />
+                                                                </span>
+                                                        </li>
+                                                ))}
+                                        </ul>
+                                        <div class="callout">
+                                                Drafts are saved locally in your browser. When ready, paste the generated Markdown into
+                                                <code>src/content/blog</code> as a new <code>.md</code> or <code>.mdx</code> file.
+                                        </div>
+                                </aside>
+                        </div>
+                </main>
+                <Footer />
+
+                <script is:inline>
+                        const form = document.getElementById('post-form');
+                        const preview = document.getElementById('preview');
+                        const saveButton = document.getElementById('save-draft');
+                        const copyButton = document.getElementById('copy');
+                        const clearButton = document.getElementById('clear');
+
+                        const fields = {
+                                title: document.getElementById('title'),
+                                slug: document.getElementById('slug'),
+                                description: document.getElementById('description'),
+                                category: document.getElementById('category'),
+                                pubDate: document.getElementById('pubDate'),
+                                heroImage: document.getElementById('heroImage'),
+                                content: document.getElementById('content'),
+                                tags: document.getElementById('tags'),
+                                updatedDate: document.getElementById('updatedDate'),
+                        };
+
+                        const LOCAL_KEY = 'ntrcaexplore-drafts';
+
+                        const slugify = (value) =>
+                                value
+                                        .toLowerCase()
+                                        .trim()
+                                        .replace(/[^a-z0-9]+/g, '-')
+                                        .replace(/(^-|-$)/g, '');
+
+                        const loadDraft = () => {
+                                const stored = localStorage.getItem(LOCAL_KEY);
+                                if (!stored) return;
+                                const draft = JSON.parse(stored);
+                                Object.keys(fields).forEach((key) => {
+                                        if (draft[key]) {
+                                                fields[key].value = draft[key];
+                                        }
+                                });
+                        };
+
+                        const buildMarkdown = () => {
+                                const tags = fields.tags.value
+                                        .split(',')
+                                        .map((tag) => tag.trim())
+                                        .filter(Boolean);
+
+                                const fm = {
+                                        title: fields.title.value.trim(),
+                                        description: fields.description.value.trim(),
+                                        pubDate: fields.pubDate.value,
+                                        heroImage: fields.heroImage.value || '/blog-placeholder-1.jpg',
+                                        category: fields.category.value,
+                                };
+
+                                if (fields.updatedDate.value) fm.updatedDate = fields.updatedDate.value;
+                                if (tags.length) fm.tags = tags;
+
+                                const frontmatter = ['---'];
+                                Object.entries(fm).forEach(([key, value]) => {
+                                        if (Array.isArray(value)) {
+                                                frontmatter.push(`${key}: [${value.map((v) => `'${v}'`).join(', ')}]`);
+                                        } else {
+                                                frontmatter.push(`${key}: "${value}"`);
+                                        }
+                                });
+                                frontmatter.push('---\n');
+                                return `${frontmatter.join('\n')}${fields.content.value.trim()}`;
+                        };
+
+                        const renderPreview = () => {
+                                preview.textContent = buildMarkdown();
+                        };
+
+                        form.addEventListener('input', (event) => {
+                                if (event.target === fields.title && !fields.slug.value) {
+                                        fields.slug.value = slugify(fields.title.value);
+                                }
+                                renderPreview();
+                        });
+
+                        saveButton.addEventListener('click', () => {
+                                const draft = Object.fromEntries(
+                                        Object.entries(fields).map(([key, el]) => [key, el.value]),
+                                );
+                                localStorage.setItem(LOCAL_KEY, JSON.stringify(draft));
+                                saveButton.textContent = 'Saved';
+                                setTimeout(() => (saveButton.textContent = 'Save draft'), 1200);
+                        });
+
+                        copyButton.addEventListener('click', async () => {
+                                const markdown = buildMarkdown();
+                                await navigator.clipboard.writeText(markdown);
+                                copyButton.textContent = 'Copied!';
+                                setTimeout(() => (copyButton.textContent = 'Copy Markdown'), 1200);
+                        });
+
+                        clearButton.addEventListener('click', () => {
+                                form.reset();
+                                localStorage.removeItem(LOCAL_KEY);
+                                preview.textContent = '';
+                        });
+
+                        fields.pubDate.valueAsDate = new Date();
+                        renderPreview();
+                        loadDraft();
+                </script>
+        </body>
+</html>

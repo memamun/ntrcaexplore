@@ -3,48 +3,240 @@ import BaseHead from '../components/BaseHead.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
+import { getCollection } from 'astro:content';
+import FormattedDate from '../components/FormattedDate.astro';
+
+const posts = (await getCollection('blog')).sort(
+        (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+);
+const latestPosts = posts.slice(0, 3);
 ---
 
 <!doctype html>
 <html lang="en">
-	<head>
-		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
-	</head>
-	<body>
-		<Header />
-		<main>
-			<h1>🧑‍🚀 Hello, Astronaut!</h1>
-			<p>
-				Welcome to the official <a href="https://astro.build/">Astro</a> blog starter template. This
-				template serves as a lightweight, minimally-styled starting point for anyone looking to build
-				a personal website, blog, or portfolio with Astro.
-			</p>
-			<p>
-				This template comes with a few integrations already configured in your
-				<code>astro.config.mjs</code> file. You can customize your setup with
-				<a href="https://astro.build/integrations">Astro Integrations</a> to add tools like Tailwind,
-				React, or Vue to your project.
-			</p>
-			<p>Here are a few ideas on how to get started with the template:</p>
-			<ul>
-				<li>Edit this page in <code>src/pages/index.astro</code></li>
-				<li>Edit the site header items in <code>src/components/Header.astro</code></li>
-				<li>Add your name to the footer in <code>src/components/Footer.astro</code></li>
-				<li>Check out the included blog posts in <code>src/content/blog/</code></li>
-				<li>Customize the blog post page layout in <code>src/layouts/BlogPost.astro</code></li>
-			</ul>
-			<p>
-				Have fun! If you get stuck, remember to <a href="https://docs.astro.build/"
-					>read the docs
-				</a> or <a href="https://astro.build/chat">join us on Discord</a> to ask questions.
-			</p>
-			<p>
-				Looking for a blog template with a bit more personality? Check out <a
-					href="https://github.com/Charca/astro-blog-template"
-					>astro-blog-template
-				</a> by <a href="https://twitter.com/Charca">Maxi Ferreira</a>.
-			</p>
-		</main>
-		<Footer />
-	</body>
+        <head>
+                <BaseHead title={`${SITE_TITLE} | Practical prep for NTRCA candidates`} description={SITE_DESCRIPTION} />
+                <style>
+                        .hero {
+                                display: grid;
+                                grid-template-columns: 1.3fr 1fr;
+                                gap: 2rem;
+                                align-items: center;
+                                padding: 2rem 0 1rem 0;
+                        }
+                        .hero-card {
+                                background: linear-gradient(135deg, rgba(var(--accent), 10%), #fff);
+                                border-radius: 24px;
+                                padding: 2rem;
+                                border: 1px solid rgba(var(--accent), 20%);
+                                box-shadow: var(--box-shadow);
+                        }
+                        .hero h1 {
+                                font-size: 2.8rem;
+                        }
+                        .hero-cta {
+                                display: flex;
+                                gap: 0.75rem;
+                                flex-wrap: wrap;
+                                margin-top: 1rem;
+                        }
+                        .stats {
+                                display: grid;
+                                grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+                                gap: 1rem;
+                        }
+                        .stat {
+                                border: 1px solid rgba(var(--gray), 12%);
+                                border-radius: 12px;
+                                padding: 1rem;
+                                background: #fff;
+                                box-shadow: 0 12px 24px rgba(var(--gray), 12%);
+                        }
+                        .section-header {
+                                display: flex;
+                                align-items: center;
+                                justify-content: space-between;
+                                gap: 1rem;
+                                flex-wrap: wrap;
+                        }
+                        .post-card {
+                                display: grid;
+                                grid-template-columns: 1.2fr 1fr;
+                                gap: 1rem;
+                                border: 1px solid rgba(var(--gray), 10%);
+                                border-radius: 16px;
+                                padding: 1rem;
+                                background: #fff;
+                                box-shadow: var(--box-shadow);
+                        }
+                        .post-card img {
+                                width: 100%;
+                                height: 100%;
+                                object-fit: cover;
+                                border-radius: 12px;
+                        }
+                        .post-meta {
+                                display: flex;
+                                align-items: center;
+                                gap: 0.5rem;
+                                color: rgb(var(--gray));
+                                font-size: 0.95rem;
+                                margin-bottom: 0.2rem;
+                        }
+                        .panel-grid {
+                                display: grid;
+                                gap: 1rem;
+                                grid-template-columns: 1.1fr 1fr;
+                        }
+                        .checklist {
+                                list-style: none;
+                                padding: 0;
+                                margin: 0;
+                                display: grid;
+                                gap: 0.5rem;
+                        }
+                        .checklist li {
+                                display: flex;
+                                gap: 0.6rem;
+                                align-items: flex-start;
+                                padding: 0.75rem 0.9rem;
+                                border-radius: 10px;
+                                background: rgba(var(--accent), 6%);
+                                border: 1px solid rgba(var(--accent), 12%);
+                        }
+                        .checkmark {
+                                font-weight: 700;
+                                color: var(--accent);
+                        }
+                        .highlight {
+                                border-left: 4px solid var(--accent);
+                                padding-left: 1rem;
+                                margin: 1rem 0;
+                                color: rgb(var(--gray));
+                        }
+                        .newsletter {
+                                border: 1px solid rgba(var(--accent), 20%);
+                                border-radius: 18px;
+                                padding: 1.5rem;
+                                background: linear-gradient(120deg, rgba(var(--accent), 12%), #fff);
+                                box-shadow: var(--box-shadow);
+                        }
+                        @media (max-width: 960px) {
+                                .hero,
+                                .post-card,
+                                .panel-grid {
+                                        grid-template-columns: 1fr;
+                                }
+                        }
+                </style>
+        </head>
+        <body>
+                <Header />
+                <main>
+                        <section class="hero">
+                                <div>
+                                        <p class="pill">ntrcaexplore.com</p>
+                                        <h1>Guides that demystify NTRCA recruitment.</h1>
+                                        <p>
+                                                Stay ahead of circulars, deadlines, and documentation with focused explainers crafted for
+                                                teachers. We collect the essentials and translate them into clear action steps.
+                                        </p>
+                                        <div class="hero-cta">
+                                                <a class="btn" href="/blog">Read the blog</a>
+                                                <a class="btn secondary" href="/admin">Open content panel</a>
+                                        </div>
+                                        <div class="stats" aria-label="Site highlights">
+                                                <div class="stat">
+                                                        <h3>Weekly breakdowns</h3>
+                                                        <p class="muted">Short reads that summarize every major notice in plain language.</p>
+                                                </div>
+                                                <div class="stat">
+                                                        <h3>Prep library</h3>
+                                                        <p class="muted">Checklists, document templates, and interview reminders you can copy.</p>
+                                                </div>
+                                                <div class="stat">
+                                                        <h3>Fast editing</h3>
+                                                        <p class="muted">Use the content panel to draft Markdown posts and keep the site fresh.</p>
+                                                </div>
+                                        </div>
+                                </div>
+                                <div class="hero-card">
+                                        <p class="pill">This week</p>
+                                        <h3>What matters now</h3>
+                                        <p class="muted">
+                                                Watch the application window, confirm your supporting documents, and bookmark the subject wise
+                                                merit list.
+                                        </p>
+                                        <ul class="checklist">
+                                                <li><span class="checkmark">✓</span> Verify your last application ID and password recovery email.</li>
+                                                <li><span class="checkmark">✓</span> Keep NID, academic certificates, and photos ready in both PDF and JPG.</li>
+                                                <li><span class="checkmark">✓</span> Track change logs in the blog to see what has been updated recently.</li>
+                                        </ul>
+                                </div>
+                        </section>
+
+                        <section>
+                                <div class="section-header">
+                                        <div>
+                                                <p class="pill">Fresh on the blog</p>
+                                                <h2>Latest breakdowns</h2>
+                                                <p class="muted">Three-minute summaries for candidates who want to scan and act.</p>
+                                        </div>
+                                        <a class="btn secondary" href="/blog">Browse all posts</a>
+                                </div>
+                                <div class="stacked-list">
+                                        {latestPosts.map((post) => (
+                                                <article class="post-card">
+                                                        <img src={post.data.heroImage} alt="" loading="lazy" width={720} height={360} />
+                                                        <div>
+                                                                <div class="post-meta">
+                                                                        <FormattedDate date={post.data.pubDate} />
+                                                                        <span class="tag">{post.data.category ?? 'Update'}</span>
+                                                                </div>
+                                                                <h3><a href={`/blog/${post.id}/`}>{post.data.title}</a></h3>
+                                                                <p class="muted">{post.data.description}</p>
+                                                                <a class="btn secondary" href={`/blog/${post.id}/`}>
+                                                                        Read now
+                                                                </a>
+                                                        </div>
+                                                </article>
+                                        ))}
+                                </div>
+                        </section>
+
+                        <section>
+                                <p class="pill">Built for maintainers</p>
+                                <div class="panel-grid">
+                                        <div class="panel">
+                                                <h2>Content panel highlights</h2>
+                                                <p class="muted">
+                                                        Draft posts, preview Markdown, and store ideas locally before pushing updates to the repo.
+                                                </p>
+                                                <div class="highlight">
+                                                        Every post generated in the panel includes frontmatter that matches the blog schema—paste it
+                                                        into <code>src/content/blog</code> and ship.
+                                                </div>
+                                                <ul class="checklist">
+                                                        <li><span class="checkmark">✓</span> Local storage keeps drafts while you work.</li>
+                                                        <li><span class="checkmark">✓</span> Copy-ready Markdown with title, description, dates, and hero image.</li>
+                                                        <li><span class="checkmark">✓</span> Slot in tags or categories to keep pages organized.</li>
+                                                </ul>
+                                        </div>
+                                        <div class="newsletter">
+                                                <p class="pill">Share it</p>
+                                                <h3>Keep your team aligned</h3>
+                                                <p class="muted">
+                                                        Add, edit, and export posts from the panel so teammates can quickly review before publishing.
+                                                </p>
+                                                <p class="muted">
+                                                        Want automated reminders? Drop your preferred workflow in the repo’s issues and we’ll wire it
+                                                        up next.
+                                                </p>
+                                                <a class="btn" href="/admin">Open the content panel</a>
+                                        </div>
+                                </div>
+                        </section>
+                </main>
+                <Footer />
+        </body>
 </html>
