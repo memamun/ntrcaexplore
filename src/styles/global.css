@@ -46,10 +46,17 @@ body {
 	line-height: 1.7;
 }
 main {
-        width: 720px;
-        max-width: calc(100% - 2em);
+        width: min(1100px, calc(100% - 3em));
         margin: auto;
-        padding: 3em 1em;
+        padding: 3.5em 1.5em 4em;
+}
+
+main > section {
+        margin-bottom: 4rem;
+}
+
+main > section:last-of-type {
+        margin-bottom: 0;
 }
 h1,
 h2,
@@ -165,13 +172,13 @@ hr {
 .card-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-        gap: 1.5rem;
+        gap: 1.75rem;
 }
 
 .card {
         border: 1px solid rgba(var(--gray), 10%);
         border-radius: 16px;
-        padding: 1.25rem;
+        padding: 1.5rem;
         background: #fff;
         box-shadow: var(--box-shadow);
 }
@@ -187,7 +194,7 @@ hr {
 .stacked-list {
         display: flex;
         flex-direction: column;
-        gap: 1rem;
+        gap: 1.35rem;
 }
 
 .tag {
